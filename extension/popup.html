@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relay Auto Booker</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+      width: 320px;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+    
+    .header {
+      background-color: #005580;
+      color: white;
+      padding: 12px 16px;
+      border-bottom: 1px solid #004466;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .status-section {
+      background-color: white;
+      padding: 16px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .status-label {
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .status-value {
+      font-size: 14px;
+    }
+    
+    .status-value.active {
+      color: #4CAF50;
+    }
+    
+    .status-value.inactive {
+      color: #F44336;
+    }
+    
+    .actions-section {
+      padding: 16px;
+      background-color: white;
+    }
+    
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      border: none;
+    }
+    
+    .btn-primary {
+      background-color: #2F6EB5;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background-color: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    
+    .footer {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+      background-color: #f5f7fa;
+    }
+    
+    .version {
+      margin-right: 10px;
+    }
+    
+    .toggle-section {
+      padding: 0 16px 16px;
+      background-color: white;
+    }
+    
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .toggle-row:last-child {
+      border-bottom: none;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      background-color: #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    
+    .toggle-switch.active {
+      background-color: #2F6EB5;
+    }
+    
+    .toggle-dot {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    
+    .toggle-switch.active .toggle-dot {
+      transform: translateX(20px);
+    }
+    
+    .toggle-checkbox {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Relay Auto Booker</h1>
+  </div>
+  
+  <div class="status-section">
+    <div class="status-row">
+      <div class="status-label">Status:</div>
+      <div class="status-value" id="status-value">Inactive</div>
+    </div>
+    
+    <div class="status-row">
+      <div class="status-label">Active mode:</div>
+      <div class="status-value" id="active-mode">Search</div>
+    </div>
+    
+    <div class="status-row">
+      <div class="status-label">Refresh interval:</div>
+      <div class="status-value" id="refresh-interval">30s</div>
+    </div>
+    
+    <div class="status-row">
+      <div class="status-label">Runtime:</div>
+      <div class="status-value" id="runtime">00:00:00</div>
+    </div>
+    
+    <div class="status-row">
+      <div class="status-label">Refreshes:</div>
+      <div class="status-value" id="refresh-count">0</div>
+    </div>
+  </div>
+  
+  <div class="toggle-section">
+    <div class="toggle-row">
+      <div class="toggle-label">Fast Book</div>
+      <label class="toggle-switch" id="fast-book-toggle">
+        <input type="checkbox" id="fast-book-checkbox" class="toggle-checkbox" checked>
+        <span class="toggle-dot"></span>
+      </label>
+    </div>
+    
+    <div class="toggle-row">
+      <div class="toggle-label">Show Trip Details</div>
+      <label class="toggle-switch" id="show-details-toggle">
+        <input type="checkbox" id="show-details-checkbox" class="toggle-checkbox" checked>
+        <span class="toggle-dot"></span>
+      </label>
+    </div>
+    
+    <div class="toggle-row">
+      <div class="toggle-label">Hide Similar Trips</div>
+      <label class="toggle-switch" id="hide-similar-toggle">
+        <input type="checkbox" id="hide-similar-checkbox" class="toggle-checkbox" checked>
+        <span class="toggle-dot"></span>
+      </label>
+    </div>
+  </div>
+  
+  <div class="actions-section">
+    <div class="button-row">
+      <button class="btn btn-primary" id="start-btn">Start</button>
+      <button class="btn btn-secondary" id="stop-btn" disabled>Stop</button>
+    </div>
+    
+    <button class="btn btn-secondary" id="settings-btn">Settings</button>
+  </div>
+  
+  <div class="footer">
+    <div class="version">v1.0.0</div>
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label">Matches:</span>
+        <span class="stat-value" id="matches-count">0</span>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
